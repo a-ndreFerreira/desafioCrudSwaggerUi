@@ -16,7 +16,7 @@ api.interceptors.request.use((config) => {
     const AUTH_TOKEN = `Basic ${btoa(`${userName}:${userPassword}`)}`;
 
     config.headers.Authorization = AUTH_TOKEN;
-    // console.log(config)
+    console.log('config', config)
     return config;
 });
 
@@ -25,7 +25,7 @@ api.interceptors.response.use((response) => {
 
     return response;
 }, (error) => {
-    console.log('erro ao buscar dados', error.response)
+    console.log('erro no response de dados', error.response)
 
     return Promise.reject(error);
 });

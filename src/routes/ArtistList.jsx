@@ -3,47 +3,141 @@ import { useEffect, useState } from "react"
 
 import api from '../services/api'
 
-// const dataBase = [
-//     { description: 'Bob Marley', dynamic: false, label: 'Artist', tag: 'artist', writers: null },
-
-//     { description: 'You could be love', dynamic: false, label: 'Album', tag: 'album', writers: null },
-//     { description: 'you could be love', dynamic: false, label: 'Song', tag: 'song', writers: null },
-//     { description: 'Playlist', dynamic: false, label: 'Playlist', tag: 'playlist', writers: null },
-//     { description: 'AssetTypeListData', dynamic: false, label: 'AssetTypeListData', tag: 'assetTypeListData', writers: null },
-// ]
+import { invokeTransaction, getAsset, updateAsset, deleteAsset } from "../hooks/useFetch";
 
 const ArtistList = () => {
     const [artists, setArtists] = useState([]);
 
-    const dataBase = { 'Bob Marley': 'Bad boy' }
-
-
+    //POST com creatAsset
     const handleClick = async () => {
 
-        try {
-            const response = await api.post("/api/query/search", dataBase);
+        const payloadPost = {
+            asset: [
+                {
+                    "@assetType": "artist",
+                    "name": "Vuduu Trio RP",
+                    "country": "Brasil - SP - Ribeirão Preto",
+                },
+            ],
+        };
 
+        //post working
+        try {
+            const response = await invokeTransaction('createAsset', payloadPost);
             const data = response.data;
-            console.log(data)
-            setArtists(data)
+            setArtists([...artists, data]);
+
+            console.log('post', data)
+        } catch (error) {
+            console.log('erro ao adicionar dados', error);
+        }
+
+    }
+
+    //GET ASSET com readAsset ou search
+    const handleClickGetAsset = async () => {
+
+        //getAsset working readAsset, procura e le o artista usando a key, retornando reponse.data
+        // key: {
+        //     "@assetType": "artist",
+        //     "name": "Kendrick Lamar"
+        // }
+        // search, procura e le o artista tambem, utilizando o query, retornando com reponse.data.result
+        // query: {
+        //     selector: {
+        //         "@assetType": "artist",
+        //         "name": "aaa"
+        //     }
+        // }
+
+        try {
+            const response = await getAsset('search', {
+                query: {
+                    selector: {
+                        "@assetType": "artist",
+                    }
+                }
+            });
+
+            const data = response.data.result;
+
+            console.log('getAsset', data)
 
         } catch (error) {
-            console.log('error ao adicionar dados', error)
+            console.log('erro ao ler dados', error);
+        }
+
+    }
+
+    //UPDATE ASSET /invoke/ com updateAsset
+    const handleClickUpdateAsset = async () => {
+        const payload = {
+            update: {
+                "@assetType": "artist",
+                "name": "Kendrick Lamar",
+                "country": "USA-Brasil",
+            }
+        }
+
+        try {
+            const response = await updateAsset('updateAsset', payload)
+
+            const data = response.data;
+            console.log('update', data)
+
+        } catch (error) {
+            console.log('erro ao editar dados', error)
+        }
+    }
+
+    //DELETE ASSET com invoke deleteAsset
+    const handleClickDelete = async () => {
+        const payload = {
+            key: {
+                "@assetType": "artist",
+                "name": "Alexandre Frota",
+            }
+        }
+
+        try {
+            const response = await deleteAsset('deleteAsset', payload);
+
+            const data = response.data;
+            console.log('delete', data)
+        } catch (error) {
+            console.log('delete', error.message)
         }
     }
 
 
+    //GET SCHEMA get schema pega o esquema, o search pega o database todo
     const getArtist = async () => {
 
-        try {
-            const response = await api.get("/api/query/getSchema");
+        const payload = {
+            query: {
+                selector: {
+                    "@assetType": "artist", //name, country
+                }
+            }
+        }
 
-            const data = response.data;
+        //acessar dados
+        // "@assetType": "artist", //name, country
+        //"@assetType": "album", //name, year artists[]
+        //"@assetType": "song", // name, album[]
+        //"@assetType": "playlist", //name, private, songs[]
+
+
+        //getSchema working
+        try {
+            const response = await api.post("/api/query/search", payload);
+
+            const data = response.data.result;
 
 
             setArtists(data);
 
-            console.log(artists)
+            console.log('getSchema', data)
         } catch (error) {
             console.log(error)
         }
@@ -53,6 +147,8 @@ const ArtistList = () => {
 
     }, [])
 
+    console.log('artists', artists)
+
     return (
         <div>
             <h1>
@@ -61,11 +157,20 @@ const ArtistList = () => {
             <button onClick={handleClick}>
                 adicionar
             </button>
+            <button onClick={handleClickGetAsset}>
+                Ler dados da api
+            </button>
+            <button onClick={handleClickUpdateAsset}>
+                Update asset
+            </button>
+            <button onClick={handleClickDelete}>
+                Delete
+            </button>
             {
                 artists && artists.map((item, index) => (
                     <div key={index}>
-                        <h1>{item.label}</h1>
-                        <p>{item.description}</p>
+                        <h1>{item.name}</h1>
+                        <p>{item.country}</p>
                     </div>
                 ))
             }

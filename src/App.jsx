@@ -1,15 +1,18 @@
 
+import { Outlet } from 'react-router-dom'
+
 import './App.css'
-import ArtistList from './routes/ArtistList'
+
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 
 function App() {
 
   return (
     <>
-      <h1>
-        ola desafio goLedger
-      </h1>
-      <ArtistList />
+      <Navbar />
+      <Outlet />
+      <Footer />
     </>
   )
 }
