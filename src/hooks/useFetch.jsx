@@ -4,12 +4,12 @@ import api from "../services/api";
 //POST ASSET
 export const invokeTransaction = async (txName, payload) => {
     try {
-        const response = api.post(`/api/invoke/${txName}`, payload);
+        const response = await api.post(`/api/invoke/${txName}`, payload);
 
         return response;
 
     } catch (error) {
-        console.log('erro ao postar dados', error.message)
+        console.log('erro ao postar dados', error)
     }
 
 }
@@ -22,7 +22,7 @@ export const getAsset = async (transaction, payload) => {
         return response;
 
     } catch (error) {
-        console.log('erro ao pegar/procurar dados', error.message)
+        console.log('erro ao pegar/procurar dados', error)
     }
 
 }
@@ -35,7 +35,7 @@ export const updateAsset = async (transaction, payload) => {
         return response;
 
     } catch (error) {
-        console.log('erro ao editar dados', error.message)
+        console.log('erro ao editar dados', error)
     }
 }
 
@@ -43,10 +43,12 @@ export const updateAsset = async (transaction, payload) => {
 export const deleteAsset = async (transaction, payload) => {
     try {
         const response = await api.delete(`/api/invoke/${transaction}`, { data: payload });
+
         console.log(response)
+
         return response;
 
     } catch (error) {
-        console.log('delete', error.message);
+        console.log('delete', error);
     }
 }

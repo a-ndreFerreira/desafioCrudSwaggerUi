@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
+import { KeysContextProvider } from './context/KeysContext.jsx'
+
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import ArtistList from './routes/ArtistList.jsx'
 import AlbumList from './routes/AlbumList.jsx'
@@ -41,6 +43,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <KeysContextProvider>
+      <RouterProvider router={router} />
+    </KeysContextProvider>
   </StrictMode>,
 )

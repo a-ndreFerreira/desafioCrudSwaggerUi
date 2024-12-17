@@ -1,67 +1,56 @@
 
 import { useEffect, useState } from "react"
 
-import api from '../services/api'
-
-import { invokeTransaction, getAsset, updateAsset, deleteAsset } from "../hooks/useFetch";
+import { postArtist, getAllArtists, updateArtist, readArtist, deleteArtist } from "../hooks/useArtist";
 
 const ArtistList = () => {
     const [artists, setArtists] = useState([]);
+    const [readAsset, setReadAsset] = useState([]);
 
-    //POST com creatAsset
+
+    //POST com creatAsset refatorado no hook
     const handleClick = async () => {
-
-        const payloadPost = {
+        //entrada de dados dos forms/inputs
+        const payload = {
             asset: [
                 {
                     "@assetType": "artist",
-                    "name": "Vuduu Trio RP",
-                    "country": "Brasil - SP - Ribeirão Preto",
+                    "name": "Les Claypool",
+                    "country": "USA",
                 },
             ],
         };
 
-        //post working
         try {
-            const response = await invokeTransaction('createAsset', payloadPost);
-            const data = response.data;
-            setArtists([...artists, data]);
+            const data = await postArtist(payload);
 
-            console.log('post', data)
+            if (data) setArtists(data);
+
+            getArtist();
+
+
         } catch (error) {
-            console.log('erro ao adicionar dados', error);
+            console.log('Erro ao adicionar artista:', error.message);
         }
 
     }
 
-    //GET ASSET com readAsset ou search
-    const handleClickGetAsset = async () => {
 
-        //getAsset working readAsset, procura e le o artista usando a key, retornando reponse.data
-        // key: {
-        //     "@assetType": "artist",
-        //     "name": "Kendrick Lamar"
-        // }
-        // search, procura e le o artista tambem, utilizando o query, retornando com reponse.data.result
-        // query: {
-        //     selector: {
-        //         "@assetType": "artist",
-        //         "name": "aaa"
-        //     }
-        // }
+    //READ ASSET refatorado com hook
+    const handleClickGetAsset = async (item) => {
+
+        //esse key, vai ter que ser dinamico
+        const key = {
+            key: {
+                "@assetType": "artist",
+                "name": item.name
+            }
+        }
 
         try {
-            const response = await getAsset('search', {
-                query: {
-                    selector: {
-                        "@assetType": "artist",
-                    }
-                }
-            });
+            const data = await readArtist(key);
 
-            const data = response.data.result;
-
-            console.log('getAsset', data)
+            if (data) setReadAsset([data]);
 
         } catch (error) {
             console.log('erro ao ler dados', error);
@@ -69,21 +58,21 @@ const ArtistList = () => {
 
     }
 
-    //UPDATE ASSET /invoke/ com updateAsset
-    const handleClickUpdateAsset = async () => {
+    //UPDATE ASSET /invoke/ com updateAsset refatorado com o hook
+    const handleClickUpdateAsset = async (item) => {
+
+        //entrada de dados do form/inputs
         const payload = {
             update: {
                 "@assetType": "artist",
-                "name": "Kendrick Lamar",
-                "country": "USA-Brasil",
+                "name": item.name,
+                "country": "BRAZIL ZIL",
             }
         }
 
         try {
-            const response = await updateAsset('updateAsset', payload)
-
-            const data = response.data;
-            console.log('update', data)
+            await updateArtist(payload);
+            getArtist()
 
         } catch (error) {
             console.log('erro ao editar dados', error)
@@ -91,57 +80,54 @@ const ArtistList = () => {
     }
 
     //DELETE ASSET com invoke deleteAsset
-    const handleClickDelete = async () => {
+    const handleClickDelete = async (item) => {
+
         const payload = {
             key: {
                 "@assetType": "artist",
-                "name": "Alexandre Frota",
+                "name": item.name,
             }
         }
 
-        try {
-            const response = await deleteAsset('deleteAsset', payload);
+        // pega as propriedades keys para add no album
+        // const keyAsset = item.map((artist) => ({
+        //     "@assetType": "artist",
+        //     "@key": artist["@key"]
+        // }))[0]
 
-            const data = response.data;
-            console.log('delete', data)
+
+        try {
+            await deleteArtist(payload);
+            console.log('artista deletado');
+            getArtist();
         } catch (error) {
             console.log('delete', error.message)
         }
     }
 
-
-    //GET SCHEMA get schema pega o esquema, o search pega o database todo
+    //GET all SCHEMA o search pega o database todo refatorado com hook
     const getArtist = async () => {
 
+        //entrada de dados do form/input
         const payload = {
             query: {
                 selector: {
-                    "@assetType": "artist", //name, country
+                    "@assetType": "artist",
                 }
             }
         }
 
-        //acessar dados
-        // "@assetType": "artist", //name, country
-        //"@assetType": "album", //name, year artists[]
-        //"@assetType": "song", // name, album[]
-        //"@assetType": "playlist", //name, private, songs[]
-
-
-        //getSchema working
         try {
-            const response = await api.post("/api/query/search", payload);
+            const data = await getAllArtists(payload);
 
-            const data = response.data.result;
+            if (data) setArtists(data);
 
-
-            setArtists(data);
-
-            console.log('getSchema', data)
         } catch (error) {
-            console.log(error)
+            console.log('Erro ao buscar artistas:', error.message);
         }
+
     }
+
     useEffect(() => {
         getArtist()
 
@@ -154,27 +140,47 @@ const ArtistList = () => {
             <h1>
                 Artistas
             </h1>
-            <button onClick={handleClick}>
-                adicionar
-            </button>
-            <button onClick={handleClickGetAsset}>
-                Ler dados da api
-            </button>
-            <button onClick={handleClickUpdateAsset}>
-                Update asset
-            </button>
-            <button onClick={handleClickDelete}>
-                Delete
-            </button>
             {
-                artists && artists.map((item, index) => (
+                readAsset && readAsset.map((item, index) => (
                     <div key={index}>
-                        <h1>{item.name}</h1>
-                        <p>{item.country}</p>
+                        <h3>
+                            Read Asset
+                        </h3>
+                        <h2>
+                            Artista: {item.name}
+                        </h2>
+                        <p>
+                            Naturalidade: {item.country}
+                        </p>
+                        <button onClick={() => handleClickUpdateAsset(item)}>
+                            Editar
+                        </button>
+                        <button onClick={() => handleClickDelete(item)}>
+                            Excluir
+                        </button>
+                        <p>
+                            --------------------------
+                        </p>
                     </div>
                 ))
             }
-        </div>
+            <button onClick={handleClick}>
+                adicionar
+            </button>
+
+            {
+                artists && artists.map((item, index) => (
+                    <div key={index}>
+                        <h1 onDoubleClick={() => handleClickGetAsset(item)}>
+                            {item.name}
+                        </h1>
+                        <p>
+                            {item.country}
+                        </p>
+                    </div>
+                ))
+            }
+        </div >
     )
 }
 

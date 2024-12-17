@@ -1,11 +1,16 @@
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { getAsset, invokeTransaction, updateAsset } from "../hooks/useFetch";
 
 import { deleteAsset } from "../hooks/useFetch";
 
+// import { SongContext } from "../context/SongContext";
+
 const Playlist = () => {
+
     const [playlist, setPlaylist] = useState([]);
+
+    // const { songKeys } = useContext(SongContext);
 
     //criar playList
     const handleClickCreateAsset = async () => {
@@ -21,7 +26,7 @@ const Playlist = () => {
         }
 
         try {
-            const response = await invokeTransaction('createAsset', payload)
+            const response = await invokeTransaction('createAsset', payload);
             const data = response.data.result;
 
             setPlaylist(data)
@@ -36,7 +41,7 @@ const Playlist = () => {
         const payload = {
             update: {
                 "@assetType": "playlist",
-                "name": "My Favorits",
+                "name": "My Favorits2",
                 "private": false,
                 "songs": []
             }
@@ -44,7 +49,7 @@ const Playlist = () => {
 
         try {
             const response = await updateAsset('updateAsset', payload);
-            const data = response.data;
+            const data = response.data.result;
 
             setPlaylist(data);
 
@@ -60,7 +65,7 @@ const Playlist = () => {
         const payload = {
             key: {
                 "@assetType": "playlist",
-                "name": "As melhores de 2000",
+                "name": "My Favorits2",
                 "songs": null
             }
         }
@@ -100,6 +105,8 @@ const Playlist = () => {
     useEffect(() => {
         getPlaylist();
     }, [])
+
+    console.log('playlist', playlist)
 
     return (
         <div>

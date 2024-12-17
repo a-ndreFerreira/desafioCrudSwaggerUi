@@ -6,6 +6,7 @@ import { getAsset } from "../hooks/useFetch";
 const Songs = () => {
     const [songs, setSongs] = useState([]);
 
+
     //pegar as @keys dinamicamente de songs 
     const getSongKeys = async (data) => {
 
@@ -15,7 +16,6 @@ const Songs = () => {
         }))
 
         console.log('songKeys', songKeys);
-
 
     }
 
@@ -35,6 +35,7 @@ const Songs = () => {
             const data = response.data.result;
             getSongKeys(data)
             setSongs(data)
+            console.log('songs', data)
 
         } catch (error) {
             console.log('getAssetSongs', error)
